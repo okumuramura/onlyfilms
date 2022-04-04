@@ -11,7 +11,9 @@ def authorized(authorization: Optional[str] = Header(None)) -> User:
         raise HTTPException(status_code=406, detail='Authorization requied')
 
     with Session() as session:
-        token: Token = session.query(Token).filter(Token.token == authorization).first()
+        token: Token = (
+            session.query(Token).filter(Token.token == authorization).first()
+        )
 
         if token is None:
             raise HTTPException(status_code=406, detail='Authorization faild')

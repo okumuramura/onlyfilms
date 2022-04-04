@@ -1,9 +1,11 @@
-from typer import Typer
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.wsgi import WSGIMiddleware
+from typer import Typer
 
 from onlyfilms import Base, engine
 from onlyfilms.api import api
+from onlyfilms.view import app as interface_app
 
 args = Typer()
 
@@ -11,7 +13,7 @@ args = Typer()
 def create_app() -> FastAPI:
     app = FastAPI()
     app.include_router(api.router)
-
+    app.mount('/onlyfilms/', WSGIMiddleware(interface_app.app))
     return app
 
 

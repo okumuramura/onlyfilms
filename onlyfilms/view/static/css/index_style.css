@@ -1,0 +1,82 @@
+@font-face {
+    font-family: "Hubballi";
+    src: url(onlyfilms/static/fonts/Hubballi-Regular.ttf);
+}
+
+.header {
+    display: flex;
+    /* justify-content: center; */
+    margin-top: 10px;
+}
+
+.title {
+    font-family: "Hubballi";
+    text-align: center;
+    font-size: 36px;
+}
+
+.header > span{
+    display: block;
+    font-size: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#searcher {
+    border: 1px solid black;
+    border-right: none;
+    background: none;
+    height: 20px;
+    width: 400px;
+    font-size: 14px;
+}
+
+.search-button {
+    border: 1px solid black;
+    border-left: none;
+    height: 100%;
+    width: 20px;
+    background: url(https://img.icons8.com/ios-glyphs/60/000000/search--v1.png) no-repeat;
+    background-size: 100%;
+    background-position: 50%;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-button:hover{
+    border: 1px solid black;
+}
+
+.content {
+    width: 75%;
+    margin: auto;
+    padding: 10px;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.film {
+    height: 320px;
+    width: 224px;
+    margin: 10px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0);
+}
+
+.film:hover {
+    border-bottom: 2px solid black;
+}
+
+.score {
+    position: absolute;
+    font-family: "Hubballi";
+    font-weight: bold;
+    font-size: 20px;
+    color: rgb(255, 187, 0);
+    margin-left: 190px;
+    margin-top: 20px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background: rgba(0, 0, 0, 0.45);
+}

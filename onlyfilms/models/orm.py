@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import List, Optional
+
 from datetime import datetime
+from typing import List, Optional
 from uuid import uuid4
 
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, Text
-from sqlalchemy.orm import relationship
 import bcrypt
+from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import relationship
 
 from onlyfilms import Base
 
@@ -15,7 +16,7 @@ class User(Base):
 
     id: int = Column(Integer, primary_key=True)
     login: str = Column(String(20), nullable=False, unique=True)
-    password: str = Column(String(128), nullable=False)
+    password: bytes = Column(String(128), nullable=False)
     register_date: datetime = Column(Date, nullable=False)
 
     tokens: List[Token] = relationship('Token', back_populates='user')
@@ -23,7 +24,9 @@ class User(Base):
 
     def __init__(self, login: str, password: str) -> None:
         self.login = login
-        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
+        self.password = bcrypt.hashpw(
+            password.encode('utf-8'), bcrypt.gensalt(10)
+        )
         self.register_date = datetime.now().date()
 
     def check_password(self, password: str) -> bool:
@@ -78,13 +81,15 @@ class Film(Base):
 
     id: int = Column(Integer, primary_key=True)
     title: str = Column(String(120), nullable=False)
-    director: str = Column(String(50), nullable=True)
+    director: str = Column(String(50), nullable=True, default=None)
+    cover: str = Column(String(256), nullable=True, default=None)
 
     reviews: List[Review] = relationship('Review', back_populates='film')
 
-    def __init__(self, title: str, director: Optional[str] = None) -> None:
+    def __init__(self, title: str, director: Optional[str] = None, cover: Optional[str] = None) -> None:
         self.title = title
         self.director = director
+        self.cover = cover
 
     def __repr__(self) -> str:
-        return f'Film_{self.id}<{self.title}, {self.director}>'
+        return f'Film_{self.id}<{self.title}, {self.director}, {self.cover}>'
