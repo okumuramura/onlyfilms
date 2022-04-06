@@ -82,11 +82,19 @@ class Film(Base):
     id: int = Column(Integer, primary_key=True)
     title: str = Column(String(120), nullable=False)
     director: str = Column(String(50), nullable=True, default=None)
+    description: str = Column(Text(2000), nullable=True, default=None)
+    score: str = Column(String(4), nullable=True, default=None)
+    evaluators: int = Column(Integer, nullable=False, default=0)
     cover: str = Column(String(256), nullable=True, default=None)
 
     reviews: List[Review] = relationship('Review', back_populates='film')
 
-    def __init__(self, title: str, director: Optional[str] = None, cover: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        title: str,
+        director: Optional[str] = None,
+        cover: Optional[str] = None,
+    ) -> None:
         self.title = title
         self.director = director
         self.cover = cover

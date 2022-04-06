@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cryptobeer"
+name = "onlyfilms"
 version = "0.1.0"
 description = ""
 authors = ["okumuramura"]
@@ -14,6 +14,7 @@ fastapi = "^0.75.0"
 uvicorn = "^0.17.6"
 bcrypt = "^3.2.0"
 pydantic = "^1.9.0"
+Flask-Admin = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
 from typer import Typer
 
-from onlyfilms import Base, engine
+from onlyfilms import Base, engine, logger
 from onlyfilms.api import api
 from onlyfilms.view import app as interface_app
 
@@ -20,6 +20,7 @@ def create_app() -> FastAPI:
 @args.command(name='init')
 def init_db() -> None:
     Base.metadata.create_all(engine)
+    logger.info('Database is successfully initialized')
 
 
 @args.command()

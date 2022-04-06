@@ -23,7 +23,7 @@
 
     <div class="content">
         {% for film in films %}
-        <a href="#" title="{{ film.title }}">
+        <a href="onlyfilms/film/{{ film.id }}" title="{{ film.title }}">
             <div class="score">{{ film.score }}</div>
             <img class="film" src="{{ film.cover }}" alt="{{ film.title }} Poster">
         </a>
