@@ -24,9 +24,7 @@ def main_handler(
 
 
 @router.post('/{film_id}/rate')
-def rate_handler(
-    film_id: int, user: User = Depends(authorized)
-):
+def rate_handler(film_id: int, user: User = Depends(authorized)):
     logger.info(
         'User %s with id %d rate film with id %d: 0.0',
         user.login,
@@ -37,9 +35,7 @@ def rate_handler(
 
 
 @router.post('/{film_id}/review')
-def review_handler(
-    film_id: int, user: User = Depends(authorized)
-):
+def review_handler(film_id: int, user: User = Depends(authorized)):
     logger.info(
         'User %s with id %d left a review to film with id %d: %s',
         user.login,

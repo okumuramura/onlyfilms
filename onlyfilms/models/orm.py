@@ -5,7 +5,16 @@ from typing import List, Optional
 from uuid import uuid4
 
 import bcrypt
-from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Float,
+)
 from sqlalchemy.orm import relationship
 
 from onlyfilms import Base
@@ -83,9 +92,9 @@ class Film(Base):
     title: str = Column(String(120), nullable=False)
     director: str = Column(String(50), nullable=True, default=None)
     description: str = Column(Text(2000), nullable=True, default=None)
-    score: str = Column(String(4), nullable=True, default=None)
+    score: float = Column(Float, nullable=True, default=None)
     evaluators: int = Column(Integer, nullable=False, default=0)
-    cover: str = Column(String(256), nullable=True, default=None)
+    cover: str = Column(String(500), nullable=True, default=None)
 
     reviews: List[Review] = relationship('Review', back_populates='film')
 
@@ -94,10 +103,14 @@ class Film(Base):
         title: str,
         director: Optional[str] = None,
         cover: Optional[str] = None,
+        score: Optional[float] = None,
+        evaluators: int = 0,
     ) -> None:
         self.title = title
         self.director = director
         self.cover = cover
+        self.score = score
+        self.evaluators = evaluators
 
     def __repr__(self) -> str:
-        return f'Film_{self.id}<{self.title}, {self.director}, {self.cover}>'
+        return f'Film_{self.id}<{self.title}, {self.director}>'

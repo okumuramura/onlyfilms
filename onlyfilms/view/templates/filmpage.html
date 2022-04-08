@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{ film.title }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="info_content">
+        
+    <div class="info_block">
+        <div class="left_block">
+            <img class="cover" src="{{ film.cover }}" alt="{{ film.title }}">
+            <div class="score_block">
+                <span class="fa fa-star{% if film.score < 1 %}-o{% elif film.score < 2 %}-half-o{% endif %}"></span>
+                <span class="fa fa-star{% if film.score < 3 %}-o{% elif film.score < 4 %}-half-o{% endif %}"></span>
+                <span class="fa fa-star{% if film.score < 5 %}-o{% elif film.score < 6 %}-half-o{% endif %}"></span>
+                <span class="fa fa-star{% if film.score < 7 %}-o{% elif film.score < 8 %}-half-o{% endif %}"></span>
+                <span class="fa fa-star{% if film.score < 9 %}-o{% elif film.score < 10 %}-half-o{% endif %}"></span>
+                <div class="score-user-score">
+                    User score: {{ film.score }}
+                </div>
+                <div class="score-reviews-count">
+                    based on {{ film.evaluators }} reviews
+                </div>
+            </div>
+        </div>
+        <div class="right_block">
+            <div class="title_holder">{{ film.title }}</div>
+            <p>{{ film.description }}</p>
+            
+            <div class="review new_review">
+                <textarea name="" id="new_review_text" placeholder="Tell us about your expressions" maxlength="2000" spellcheck="" cols="30" rows="10"></textarea>
+                <button class="send-review-button">Send</button>
+            </div>
+
+            {% for review in reviews %}
+            <div class="review">
+                <div class="author">{{ review.author.login }}</div>
+                <div class="review_text">
+                    {{ review.text }}
+                </div>
+                <div class="review_date">{{ review.created.strftime("%d.%m.%Y") }}</div>
+            </div>
+            {% endfor %}
+            {% if reviews|length == 0 %}
+            <p>No reviews yet...</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

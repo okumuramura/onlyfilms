@@ -10,6 +10,11 @@
     font-size: 36px;
 }
 
+.title a {
+    text-decoration: None;
+    color: black;
+}
+
 .header > span{
     display: block;
     font-size: 0;
@@ -65,7 +70,6 @@
 
 .score {
     position: absolute;
-    font-family: "Hubballi";
     font-weight: bold;
     font-size: 20px;
     color: rgb(255, 187, 0);
@@ -74,4 +78,84 @@
     padding-left: 5px;
     padding-right: 5px;
     background: rgba(0, 0, 0, 0.45);
+}
+
+.title_holder{
+    text-align: center;
+    font-size: 24px;
+}
+
+.info_content {
+    width: 75%;
+    margin: auto;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.info_block{
+    display: flex;
+}
+
+.left_block{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    justify-items: center;
+}
+
+.score_block{
+    text-align: center;
+}
+
+.cover {
+    height: 340px;
+    width: 244px;
+    margin: 10px;
+}
+
+.right_block {
+    margin: 0px 0px 20px 20px;
+}
+
+.right_block > p {
+    text-indent: 20px;
+}
+
+.review {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.new_review textarea{
+    width: 99%;
+    height: 50px;
+    resize: horizontal;
+}
+
+.new_review textarea:focus{
+    height: 160px;
+}
+
+.author {
+    margin-bottom: 10px;
+    background: black;
+    color: white;
+    padding-left: 10px;
+}
+
+.review_date {
+    text-align: right;
+    font-size: 12px;
+}
+
+.score-reviews-count {
+    font-size: 12px;
+}
+
+.send-review-button {
+    background: black;
+    border: none;
+    color: white;
+    cursor: pointer;
 }

@@ -1,33 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>OnlyFilms</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
-</head>
-<body>
-    <style>
-        @font-face {
-            font-family: "Hubballi";
-            src: url({{ url_for('static', filename='fonts/Hubballi-Regular.ttf') }});
-        }
-    </style>
-    <div class="title">OnlyFilms</div>
+{% extends 'base.html' %}
 
-    <div class="header">
-        <span>
-            <input type="text" name="searcher" id="searcher" placeholder="Search">
-            <button type="submit" class="search-button"><i>&nbsp;</i></button>
-        </span>
-    </div>
+{% block head %}
+<title>OnlyFilms</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+{% endblock %}
 
-    <div class="content">
-        {% for film in films %}
-        <a href="onlyfilms/film/{{ film.id }}" title="{{ film.title }}">
+{% block content %}
+<div class="header">
+    <span>
+        <input type="text" name="searcher" id="searcher" placeholder="Search">
+        <button type="submit" class="search-button"><i>&nbsp;</i></button>
+    </span>
+</div>
+
+<div class="content">
+    {% for film in films %}
+    <a href="film/{{ film.id }}" title="{{ film.title }}">
+        <div>
             <div class="score">{{ film.score }}</div>
             <img class="film" src="{{ film.cover }}" alt="{{ film.title }} Poster">
-        </a>
-        {% endfor %}
-    </div>
-</body>
-</html>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
