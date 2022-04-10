@@ -42,7 +42,7 @@ class User(Base):
         return bcrypt.checkpw(password.encode('utf-8'), self.password)
 
     def __repr__(self) -> str:
-        return f'User_{self.id}<{self.login}, {self.password}>'
+        return f'<User {self.login}>'
 
 
 class Token(Base):
@@ -61,7 +61,7 @@ class Token(Base):
         self.created = datetime.now()
 
     def __repr__(self) -> str:
-        return f'Token_{self.id}<{self.user_id}>'
+        return f'<Token {self.user}, {self.token}>'
 
 
 class Review(Base):
@@ -82,7 +82,7 @@ class Review(Base):
         self.text = text
 
     def __repr__(self) -> str:
-        return f'Review_{self.id}<{self.author_id}, {self.text[:30]}...>'
+        return f'<Review {self.text[:30]}...>'
 
 
 class Film(Base):
@@ -113,4 +113,4 @@ class Film(Base):
         self.evaluators = evaluators
 
     def __repr__(self) -> str:
-        return f'Film_{self.id}<{self.title}, {self.director}>'
+        return f'<Film {self.title}>'

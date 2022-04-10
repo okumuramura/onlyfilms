@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from onlyfilms import logger, Session
 from onlyfilms.api import authorized
 from onlyfilms.models.orm import User, Film
+from onlyfilms.models.request_models import ReviewModel
 
 router = APIRouter()
 
@@ -35,13 +36,13 @@ def rate_handler(film_id: int, user: User = Depends(authorized)):
 
 
 @router.post('/{film_id}/review')
-def review_handler(film_id: int, user: User = Depends(authorized)):
+def review_handler(film_id: int, review: ReviewModel, user: User = Depends(authorized)):
     logger.info(
         'User %s with id %d left a review to film with id %d: %s',
         user.login,
         user.id,
         film_id,
-        '...',
+        review.text,
     )
     return {'status': 'ok', 'user': user}
 

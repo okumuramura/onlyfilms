@@ -31,8 +31,12 @@
             <p>{{ film.description }}</p>
             
             <div class="review new_review">
+                {% if authorized %}
                 <textarea name="" id="new_review_text" placeholder="Tell us about your expressions" maxlength="2000" spellcheck="" cols="30" rows="10"></textarea>
-                <button class="send-review-button">Send</button>
+                <button class="send-review-button" onclick="send_review_handler()">Send</button>
+                {% else %}
+                <div class="black-text">log in to leave a review</div>
+                {% endif %}
             </div>
 
             {% for review in reviews %}

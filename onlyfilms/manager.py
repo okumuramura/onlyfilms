@@ -2,23 +2,23 @@ from typing import Optional, List, Callable, Any
 import json
 from functools import wraps
 
-from sqlalchemy.orm import Session, contains_eager
+from sqlalchemy.orm import Session, joinedload
 
 from onlyfilms import Session as SessionCreator
-from onlyfilms.models.orm import Film, Review
+from onlyfilms.models.orm import Film, Review, User
 
 
-def orm_function(func: Callable[[Session, Any, Any], Any]):
+def orm_function(func: Callable[..., Any]):
     @wraps(func)
     def wrapper(*args, **kwargs):
         with SessionCreator() as session:
-            return func(session, *args, **kwargs)
+            return func(*args, session=session, **kwargs)
 
     return wrapper
 
 
 @orm_function
-def get_film_by_id(session: Session, film_id: int) -> Film:
+def get_film_by_id(film_id: int, session: Session = None) -> Film:
     film = session.query(Film).filter(Film.id == film_id).first()
 
     return film
@@ -26,10 +26,10 @@ def get_film_by_id(session: Session, film_id: int) -> Film:
 
 @orm_function
 def get_films(
-    session: Session,
     query: Optional[str] = None,
     offset: int = 0,
     min_rating: float = 0.0,
+    session: Session = None
 ) -> List[Film]:
     films = session.query(Film).all()
 
@@ -38,11 +38,11 @@ def get_films(
 
 @orm_function
 def get_reviews(
-    session: Session, film_id: int, limit: int = 3, offset: int = 0
+    film_id: int, limit: int = 3, offset: int = 0, session: Session = None
 ) -> List[Review]:
     reviews = (
         session.query(Review)
-        .options(contains_eager(Review.author))
+        .options(joinedload(Review.author))
         .filter(Review.film_id == film_id)
         .order_by(Review.created)
         .offset(offset)
@@ -51,6 +51,11 @@ def get_reviews(
     )
 
     return reviews
+
+
+@orm_function
+def get_user(user_id: int, session: Session = None) -> User:
+    return session.query(User).filter(User.id == user_id).first()
 
 
 def load_films(path: str) -> None:

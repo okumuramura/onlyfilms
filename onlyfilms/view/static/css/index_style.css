@@ -1,10 +1,12 @@
-.header {
+.search-block {
     display: flex;
     /* justify-content: center; */
     margin-top: 10px;
 }
 
 .title {
+    position: absolute;
+    width: 98%;
     font-family: "Hubballi";
     text-align: center;
     font-size: 36px;
@@ -15,7 +17,7 @@
     color: black;
 }
 
-.header > span{
+.search-block > span{
     display: block;
     font-size: 0;
     margin-left: auto;
@@ -115,10 +117,12 @@
 
 .right_block {
     margin: 0px 0px 20px 20px;
+    width: 80%;
 }
 
 .right_block > p {
     text-indent: 20px;
+    margin: 20px;
 }
 
 .review {
@@ -158,4 +162,34 @@
     border: none;
     color: white;
     cursor: pointer;
+}
+
+.header {
+    height: 36px;
+}
+
+.controls {
+    position: absolute;
+    display: flex;
+    right: 2%;
+    width: 20%;
+    justify-content: flex-end;
+    text-align: center;
+}
+
+.controls div {
+    margin: 10px;
+    padding: 2px;
+}
+
+.controls a {
+    text-decoration: none;
+    color: black;
+}
+
+.black-text {
+    background: black;
+    color: white;
+    padding-left: 2px;
+    padding-right: 2px;
 }

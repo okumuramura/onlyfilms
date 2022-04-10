@@ -12,9 +12,23 @@
             src: url({{ url_for('static', filename='fonts/Hubballi-Regular.ttf') }});
         }
     </style>
-    <div class="title"><a href="{{ url_for('.index_page') }}">OnlyFilms</a></div>
+
+    <div class="header">
+        <div class="title"><a href="{{ url_for('.index_page') }}">OnlyFilms</a></div>
+        <div class="controls">
+            {% if authorized %}
+            <div><a href="#">Log out</a></div>
+            <div class="black-text">[{{ user.login }}]</div>
+            {% else %}
+            <div><a href="#" onclick="log_in_handler()">Log in</a></div>
+            <div><a href="#" onclick="register_handler()">Register</a></div>
+            {% endif %}
+        </div>
+    </div>
 
     {% block content %}
     {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/film_info.js')}}"></script>
 </body>
 </html>
