@@ -112,5 +112,9 @@ class Film(Base):
         self.score = score
         self.evaluators = evaluators
 
+    def rate(self, rating: int):
+        self.score += round(rating / self.evaluators, 1)
+        self.evaluators += 1
+
     def __repr__(self) -> str:
         return f'<Film {self.title}>'

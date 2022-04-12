@@ -193,3 +193,16 @@
     padding-left: 2px;
     padding-right: 2px;
 }
+
+.error-content {
+    margin-top: 100px;
+}
+
+.error-content div{
+    text-align: center;
+}
+
+.not-found-code {
+    font-size: 32px;
+    font-weight: bold;
+}

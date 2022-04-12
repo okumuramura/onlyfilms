@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>OnlyFilms Register</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/for_forms.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form">
+    <form action="{{ url_for('.login_handler') }}" method="post">
+        <input type="text" name="login" id="login" placeholder="login" required>
+        <input type="password" name="password" id="password" placeholder="password" required>
+        <input type="submit" value="Sign in">
+    </form>
+</div>
+{% endblock content %}

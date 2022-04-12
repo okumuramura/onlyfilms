@@ -1,7 +1,9 @@
 from flask_admin.contrib.sqla import ModelView
 
+from onlyfilms import Session
 from onlyfilms.models.orm import User, Film, Token, Review
-from onlyfilms.admin import admin_session
+
+admin_session = Session()
 
 
 class UserModel(ModelView):
@@ -12,5 +14,5 @@ views = [
     UserModel(User, admin_session),
     ModelView(Film, admin_session),
     ModelView(Token, admin_session),
-    ModelView(Review, admin_session)
+    ModelView(Review, admin_session),
 ]

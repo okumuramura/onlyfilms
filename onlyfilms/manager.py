@@ -3,9 +3,10 @@ import json
 from functools import wraps
 
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import SQLAlchemyError
 
 from onlyfilms import Session as SessionCreator
-from onlyfilms.models.orm import Film, Review, User
+from onlyfilms.models.orm import Film, Review, User, Token
 
 
 def orm_function(func: Callable[..., Any]):
@@ -29,7 +30,7 @@ def get_films(
     query: Optional[str] = None,
     offset: int = 0,
     min_rating: float = 0.0,
-    session: Session = None
+    session: Session = None,
 ) -> List[Film]:
     films = session.query(Film).all()
 
@@ -70,3 +71,34 @@ def load_films(path: str) -> None:
         session.add_all(films)
 
         session.commit()
+
+
+@orm_function
+def regster_user(login: str, password: str, session: Session = None) -> bool:
+    new_user = User(login, password)
+    session.add(new_user)
+
+    try:
+        session.commit()
+        session.expunge(new_user)
+    except SQLAlchemyError:
+        session.rollback()
+        return False
+    return True
+
+
+@orm_function
+def login_user(login: str, password: str, session: Session = None) -> Optional[str]:
+    user: User = session.query(User).filter(User.login == login).first()
+
+    if user and user.check_password(password):
+        new_token = Token(user)
+        token = new_token.token
+        session.add(new_token)
+
+        try:
+            session.commit()
+            return token
+        except SQLAlchemyError:
+            session.rollback()
+    return None

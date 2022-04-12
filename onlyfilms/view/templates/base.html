@@ -17,11 +17,11 @@
         <div class="title"><a href="{{ url_for('.index_page') }}">OnlyFilms</a></div>
         <div class="controls">
             {% if authorized %}
-            <div><a href="#">Log out</a></div>
+            <div><a href="{{ url_for('.logout_handler') }}">Log out</a></div>
             <div class="black-text">[{{ user.login }}]</div>
             {% else %}
-            <div><a href="#" onclick="log_in_handler()">Log in</a></div>
-            <div><a href="#" onclick="register_handler()">Register</a></div>
+            <div><a href="{{ url_for('.login_handler') }}" onclick="log_in_handler()">Log in</a></div>
+            <div><a href="{{ url_for('.register_handler') }}" onclick="register_handler()">Register</a></div>
             {% endif %}
         </div>
     </div>

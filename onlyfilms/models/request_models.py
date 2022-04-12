@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -6,5 +8,10 @@ class RegisterModel(BaseModel):
     password: str
 
 
+class RatingModel(BaseModel):
+    score: int
+
+
 class ReviewModel(BaseModel):
     text: str
+    score: Optional[int] = None

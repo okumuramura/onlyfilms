@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>OnlyFilms 404</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+{% endblock head %}
+
+{% block content %}
+<div class="error-content">
+    <div class="not-found-code">404</div>
+    <div>Can not found this page :(</div>
+</div>
+{% endblock content %}
