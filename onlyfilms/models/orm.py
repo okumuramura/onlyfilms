@@ -80,6 +80,7 @@ class Review(Base):
         self.film = film
         self.author = author
         self.text = text
+        self.created = datetime.now()
 
     def __repr__(self) -> str:
         return f'<Review {self.text[:30]}...>'
@@ -111,10 +112,6 @@ class Film(Base):
         self.cover = cover
         self.score = score
         self.evaluators = evaluators
-
-    def rate(self, rating: int):
-        self.score += round(rating / self.evaluators, 1)
-        self.evaluators += 1
 
     def __repr__(self) -> str:
         return f'<Film {self.title}>'

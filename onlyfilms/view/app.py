@@ -1,6 +1,14 @@
 from http import HTTPStatus
 
-from flask import Flask, render_template, request, make_response, redirect, url_for, abort
+from flask import (
+    Flask,
+    render_template,
+    request,
+    make_response,
+    redirect,
+    url_for,
+    abort,
+)
 
 from onlyfilms import manager, logger
 from onlyfilms.models.orm import User
@@ -39,6 +47,17 @@ def film_page(film_id: int, user: User):
         film=film,
         reviews=reviews,
     )
+
+
+@app.post('/film/<int:film_id>/review')
+@authorized
+def film_review(film_id: int, user: User):
+    text = request.form.get('text')
+    if manager.create_review(film_id, user, text):
+        logger.info('review for film %d with text %s created', film_id, text)
+    else:
+        logger.info('review creation filed')
+    return redirect(url_for('.film_page', film_id=film_id))
 
 
 @app.route('/register', methods=['GET', 'POST'])

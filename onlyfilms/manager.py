@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from onlyfilms import Session as SessionCreator
 from onlyfilms.models.orm import Film, Review, User, Token
+from onlyfilms.models.request_models import ReviewModel
 
 
 def orm_function(func: Callable[..., Any]):
@@ -88,7 +89,9 @@ def regster_user(login: str, password: str, session: Session = None) -> bool:
 
 
 @orm_function
-def login_user(login: str, password: str, session: Session = None) -> Optional[str]:
+def login_user(
+    login: str, password: str, session: Session = None
+) -> Optional[str]:
     user: User = session.query(User).filter(User.login == login).first()
 
     if user and user.check_password(password):
@@ -102,3 +105,22 @@ def login_user(login: str, password: str, session: Session = None) -> Optional[s
         except SQLAlchemyError:
             session.rollback()
     return None
+
+
+@orm_function
+def create_review(film_id: int, author: User, text: str, score: Optional[int] = None, session: Session = None) -> bool:
+    film = session.query(Film).filter(Film.id == film_id).first()
+    new_review = Review(author, film, text)
+
+    session.add(new_review)
+    try:
+        session.commit()
+        return True
+    except SQLAlchemyError:
+        session.rollback()
+    return False
+
+
+@orm_function
+def review_film(film_id: int, review: ReviewModel, session: Session = None):
+    pass

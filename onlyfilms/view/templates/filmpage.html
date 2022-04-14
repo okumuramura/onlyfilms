@@ -19,7 +19,7 @@
                 <span class="fa fa-star{% if film.score < 7 %}-o{% elif film.score < 8 %}-half-o{% endif %}"></span>
                 <span class="fa fa-star{% if film.score < 9 %}-o{% elif film.score < 10 %}-half-o{% endif %}"></span>
                 <div class="score-user-score">
-                    User score: {{ film.score }}
+                    User score: {% if film.score is none %}-{% else %}{{ film.score }}{% endif %}
                 </div>
                 <div class="score-reviews-count">
                     based on {{ film.evaluators }} reviews
@@ -32,10 +32,12 @@
             
             <div class="review new_review">
                 {% if authorized %}
-                <textarea name="" id="new_review_text" placeholder="Tell us about your expressions" maxlength="2000" spellcheck="" cols="30" rows="10"></textarea>
-                <button class="send-review-button" onclick="send_review_handler()">Send</button>
+                <form id="review-form" method="post" action="{{ url_for('.film_review', film_id=film.id) }}">
+                    <textarea name="text" id="new_review_text" placeholder="Tell us about your expressions" maxlength="2000" spellcheck="" cols="30" rows="10" form="review-form"></textarea>
+                    <input class="send-review-button" type="submit" value="Send">
+                </form>
                 {% else %}
-                <div class="black-text">log in to leave a review</div>
+                <div class="black-text">Sign in to leave a review</div>
                 {% endif %}
             </div>
 
