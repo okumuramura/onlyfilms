@@ -15,6 +15,7 @@ uvicorn = "^0.17.6"
 bcrypt = "^3.2.0"
 pydantic = "^1.9.0"
 Flask-Admin = "^1.6.0"
+pydantic-sqlalchemy = "^0.0.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"

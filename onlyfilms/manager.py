@@ -1,18 +1,19 @@
-from typing import Optional, List, Callable, Any
 import json
 from functools import wraps
+from typing import Any, Callable, List, Optional
 
-from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, joinedload
 
 from onlyfilms import Session as SessionCreator
-from onlyfilms.models.orm import Film, Review, User, Token
+from onlyfilms.models import response_models
+from onlyfilms.models.orm import Film, Review, Token, User
 from onlyfilms.models.request_models import ReviewModel
 
 
-def orm_function(func: Callable[..., Any]):
+def orm_function(func: Callable[..., Any]):  # type: ignore
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # type: ignore
         with SessionCreator() as session:
             return func(*args, session=session, **kwargs)
 
@@ -28,12 +29,24 @@ def get_film_by_id(film_id: int, session: Session = None) -> Film:
 
 @orm_function
 def get_films(
-    query: Optional[str] = None,
+    query: Optional[str] = "",
     offset: int = 0,
+    limit: int = 10,
     min_rating: float = 0.0,
     session: Session = None,
 ) -> List[Film]:
-    films = session.query(Film).all()
+
+    if query:
+        query_filter = Film.title.ilike('%' + query + '%')
+    else:
+        query_filter = True
+    offset_filter = Film.id > offset
+    films = (
+        session.query(Film)
+        .filter(query_filter & offset_filter)
+        .limit(limit)
+        .all()
+    )
 
     return films
 
@@ -108,7 +121,13 @@ def login_user(
 
 
 @orm_function
-def create_review(film_id: int, author: User, text: str, score: Optional[int] = None, session: Session = None) -> bool:
+def create_review(
+    film_id: int,
+    author: User,
+    text: str,
+    score: Optional[int] = None,
+    session: Session = None,
+) -> bool:
     film = session.query(Film).filter(Film.id == film_id).first()
     new_review = Review(author, film, text)
 
@@ -122,5 +141,47 @@ def create_review(film_id: int, author: User, text: str, score: Optional[int] = 
 
 
 @orm_function
-def review_film(film_id: int, review: ReviewModel, session: Session = None):
+def review_film(
+    film_id: int, review: ReviewModel, session: Session = None
+) -> bool:
     pass
+
+
+@orm_function
+def get_film_data(
+    film_id: int, user_id: Optional[int] = None, session: Session = None
+) -> response_models.FilmInfoModel:
+    film: Film = session.query(Film).filter(Film.id == film_id).first()
+    reviews: List[Review] = (
+        session.query(Review)
+        .filter(Review.film_id == film_id)
+        .options(joinedload(Review.author))
+        .all()
+    )
+
+    review_model_items = []
+    score_sum = 0
+    reviews_with_score = 0
+    for review in reviews:
+        review_model_items.append(response_models.ReviewModel.from_orm(review))
+        # review_model_items.append(response_models.ReviewModel(
+        #     id=review.id,
+        #     author=review.author.login,
+        #     movie=film.title,
+        #     created=review.created,
+        #     text=review.text,
+        #     score=review.score
+        # ))
+        if review.score is not None:
+            score_sum += review.score
+            reviews_with_score += 1
+
+    score = None
+    if reviews_with_score > 0:
+        score = round(score_sum / reviews_with_score, 1)
+
+    film_model = response_models.FilmModel.from_orm(film)
+    # film_model = response_models.FilmModel(id=film.id, title=film.title, director=film.director, cover=film.cover)
+    return response_models.FilmInfoModel(
+        film=film_model, reviews=review_model_items, score=score
+    )

@@ -13,7 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    Float,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 
@@ -36,7 +36,7 @@ class User(Base):
         self.password = bcrypt.hashpw(
             password.encode('utf-8'), bcrypt.gensalt(10)
         )
-        self.register_date = datetime.now().date()
+        self.register_date = datetime.now()
 
     def check_password(self, password: str) -> bool:
         return bcrypt.checkpw(password.encode('utf-8'), self.password)
@@ -71,10 +71,15 @@ class Review(Base):
     author_id: int = Column(Integer, ForeignKey('users.id'))
     film_id: int = Column(Integer, ForeignKey('films.id'))
     created: datetime = Column(DateTime, nullable=False)
-    text: str = Column(Text(2000), nullable=False)
+    text: str = Column(Text(2000), nullable=True, default=None)
+    score: int = Column(Integer, nullable=True, default=None)
 
     author: User = relationship('User', back_populates='reviews')
     film: Film = relationship('Film', back_populates='reviews')
+
+    __table_args__ = (
+        UniqueConstraint('author_id', 'film_id', name='_user_review_unique'),
+    )
 
     def __init__(self, author: User, film: Film, text: str) -> None:
         self.film = film
@@ -91,11 +96,9 @@ class Film(Base):
 
     id: int = Column(Integer, primary_key=True)
     title: str = Column(String(120), nullable=False)
-    director: str = Column(String(50), nullable=True, default=None)
-    description: str = Column(Text(2000), nullable=True, default=None)
-    score: float = Column(Float, nullable=True, default=None)
-    evaluators: int = Column(Integer, nullable=False, default=0)
-    cover: str = Column(String(500), nullable=True, default=None)
+    director: Optional[str] = Column(String(50), nullable=True, default=None)
+    description: Optional[str] = Column(Text(2000), nullable=True, default=None)
+    cover: Optional[str] = Column(String(500), nullable=True, default=None)
 
     reviews: List[Review] = relationship('Review', back_populates='film')
 
@@ -104,14 +107,10 @@ class Film(Base):
         title: str,
         director: Optional[str] = None,
         cover: Optional[str] = None,
-        score: Optional[float] = None,
-        evaluators: int = 0,
     ) -> None:
         self.title = title
         self.director = director
         self.cover = cover
-        self.score = score
-        self.evaluators = evaluators
 
     def __repr__(self) -> str:
         return f'<Film {self.title}>'

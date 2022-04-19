@@ -1,5 +1,5 @@
-from flask_admin import Admin
 from flask import Flask
+from flask_admin import Admin
 
 
 def create_admin(app: Flask) -> Admin:

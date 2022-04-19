@@ -1,7 +1,7 @@
 from flask_admin.contrib.sqla import ModelView
 
 from onlyfilms import Session
-from onlyfilms.models.orm import User, Film, Token, Review
+from onlyfilms.models.orm import Film, Review, Token, User
 
 admin_session = Session()
 

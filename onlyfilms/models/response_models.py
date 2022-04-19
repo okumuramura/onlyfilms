@@ -1,36 +1,37 @@
 from typing import List, Optional
-import datetime
 
 from pydantic import BaseModel
+from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+
+from onlyfilms.models.orm import Film, Review, User
+
+FilmModelBase = sqlalchemy_to_pydantic(Film)
+UserModel = sqlalchemy_to_pydantic(User, exclude=['password', 'register_date'])
+ReviewModelBase = sqlalchemy_to_pydantic(Review)
 
 
-class FilmModel(BaseModel):
-    id: int
-    title: str
-    director: Optional[str] = None
-    cover: Optional[str] = None
-    score: str = '0.0'
+class ReviewModel(ReviewModelBase):
+    author: Optional[UserModel] = None
 
 
 class FilmsListModel(BaseModel):
-    films: List[FilmModel]
+    films: List[FilmModelBase]
     total: int
     offset: int
 
-    class Config:
-        orm_mode = True
 
-
-class Review(BaseModel):
-    id: int
-    author: str
-    movie: str
-    created: datetime.datetime
-    text: str
+class FilmModel(FilmModelBase):
+    score: Optional[float] = None
 
 
 class Reviews(BaseModel):
     movie: str
-    reviews: List[Review]
+    reviews: List[ReviewModel]
     total: int
     offset: int
+
+
+class FilmInfoModel(BaseModel):
+    film: FilmModel
+    reviews: List[ReviewModel]
+    score: Optional[float]

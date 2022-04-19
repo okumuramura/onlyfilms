@@ -2,19 +2,18 @@ from http import HTTPStatus
 
 from flask import (
     Flask,
-    render_template,
-    request,
+    abort,
     make_response,
     redirect,
+    render_template,
+    request,
     url_for,
-    abort,
 )
 
-from onlyfilms import manager, logger
+from onlyfilms import logger, manager
+from onlyfilms.admin import create_admin
 from onlyfilms.models.orm import User
 from onlyfilms.view import authorized
-from onlyfilms.admin import create_admin
-
 
 app = Flask(__name__, static_url_path='/static')
 create_admin(app)

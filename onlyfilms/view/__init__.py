@@ -1,5 +1,5 @@
-from typing import Callable, Any
 from functools import wraps
+from typing import Any, Callable
 
 from flask import request
 

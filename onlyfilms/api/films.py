@@ -1,12 +1,13 @@
 from http import HTTPStatus
-from typing import Optional, List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Query, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.exc import SQLAlchemyError
 
-from onlyfilms import logger, Session, manager
+from onlyfilms import Session, logger, manager
 from onlyfilms.api import authorized
-from onlyfilms.models.orm import User, Film, Review
+from onlyfilms.models import response_models
+from onlyfilms.models.orm import Film, Review, User
 from onlyfilms.models.request_models import ReviewModel
 
 router = APIRouter()
@@ -17,6 +18,7 @@ def main_handler(
     request: Request,
     query: Optional[str] = Query(None, alias='q'),
     offset: int = 0,
+    limit: int = 10,
 ):
 
     films = manager.get_films()
@@ -51,13 +53,13 @@ def review_handler(
             )
             raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    logger.info(
-        'User %s with id %d left a review to film with id %d: %s',
-        user.login,
-        user.id,
-        film_id,
-        review.text,
-    )
+    # logger.info(
+    #     'User %s with id %d left a review to film with id %d: %s',
+    #     user.login,
+    #     user.id,
+    #     film_id,
+    #     review.text,
+    # )
     return {'status': 'ok', 'user': user}
 
 
@@ -80,6 +82,7 @@ def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10):
     return {'reviews': reviews}
 
 
-@router.get('/{film_id}')
-def film_info_handler(film_id: int):
-    return {'status': 'ok'}
+@router.get('/{film_id}', response_model=response_models.FilmInfoModel)
+def film_info_handler(film_id: int) -> response_models.FilmInfoModel:
+    film = manager.get_film_data(film_id)
+    return film

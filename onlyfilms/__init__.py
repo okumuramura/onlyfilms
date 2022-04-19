@@ -11,6 +11,8 @@ logging.config.fileConfig(
 )
 logger = logging.getLogger(__name__)
 
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
 engine = create_engine(DB)
 Base = declarative_base()
-Session = sessionmaker(engine)
+Session = sessionmaker(engine, expire_on_commit=False)

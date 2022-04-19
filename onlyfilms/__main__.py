@@ -5,8 +5,8 @@ from typer import Typer
 
 from onlyfilms import Base, engine, logger
 from onlyfilms.api import api
-from onlyfilms.view import app as interface_app
 from onlyfilms.manager import load_films
+from onlyfilms.view import app as interface_app
 
 args = Typer()
 
