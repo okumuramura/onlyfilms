@@ -13,6 +13,7 @@ from flask import (
 from onlyfilms import logger, manager
 from onlyfilms.admin import create_admin
 from onlyfilms.models.orm import User
+from onlyfilms.models import response_models
 from onlyfilms.view import authorized
 
 app = Flask(__name__, static_url_path='/static')
@@ -37,13 +38,15 @@ def film_page(film_id: int, user: User):
         return abort(HTTPStatus.NOT_FOUND)
 
     reviews = manager.get_reviews(film_id, 5)
+    film_model = response_models.FilmModel.from_orm(film)
+    film_model.score = 0.0
     logger.info('Info page of film: %s', film)
 
     return render_template(
         'filmpage.html',
         authorized=user is not None,
         user=user,
-        film=film,
+        film=film_model,
         reviews=reviews,
     )
 

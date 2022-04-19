@@ -14,8 +14,11 @@ from onlyfilms.models.request_models import ReviewModel
 def orm_function(func: Callable[..., Any]):  # type: ignore
     @wraps(func)
     def wrapper(*args, **kwargs):  # type: ignore
-        with SessionCreator() as session:
-            return func(*args, session=session, **kwargs)
+        if kwargs.get('session') is None:
+            with SessionCreator() as session:
+                return func(*args, session=session, **kwargs)
+        else:
+            return func(*args, session=kwargs.get('session'), **kwargs)
 
     return wrapper
 
@@ -36,10 +39,7 @@ def get_films(
     session: Session = None,
 ) -> List[Film]:
 
-    if query:
-        query_filter = Film.title.ilike('%' + query + '%')
-    else:
-        query_filter = True
+    query_filter = Film.title.ilike('%' + query + '%')
     offset_filter = Film.id > offset
     films = (
         session.query(Film)
