@@ -1,13 +1,12 @@
 from http import HTTPStatus
-from typing import List, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy.exc import SQLAlchemyError
+from fastapi import APIRouter, Depends, HTTPException, Query
 
-from onlyfilms import Session, logger, manager
+from onlyfilms import logger, manager
 from onlyfilms.api import authorized
 from onlyfilms.models import response_models
-from onlyfilms.models.orm import Film, Review, User
+from onlyfilms.models.orm import User
 from onlyfilms.models.request_models import ReviewModel
 
 router = APIRouter()
@@ -15,74 +14,65 @@ router = APIRouter()
 
 @router.get('/', status_code=HTTPStatus.OK)
 def main_handler(
-    request: Request,
-    query: Optional[str] = Query(None, alias='q'),
+    query: Optional[str] = Query('', alias='q'),
     offset: int = 0,
     limit: int = 10,
 ):
 
-    films = manager.get_films()
+    films = manager.get_films(query, offset, limit)
+    films_models = [response_models.FilmModel.from_orm(x) for x in films]
+    return response_models.Films(
+        films=films_models, total=len(films), offset=offset
+    )
 
-    return {'films': films, 'total': len(films), 'offset': 0}
 
-
-@router.post('/{film_id}/review')
+@router.post('/{film_id}/review', status_code=HTTPStatus.CREATED)
 def review_handler(
     film_id: int, review: ReviewModel, user: User = Depends(authorized)
 ):
-    with Session() as session:
-        film: Film = session.query(Film).filter(Film.id == film_id).first()
+    status = manager.post_review(film_id, user, review.text, review.score)
 
-        if film is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail='film not found'
-            )
+    if status == HTTPStatus.CREATED:
+        raise HTTPException(status_code=status)
 
-        new_review = Review(user, film, review.text)
-        if review.score is not None:
-            film.rate(review.score)
+    logger.info(
+        'User %s with id %d left a review to film with id %d: %s',
+        user.login,
+        user.id,
+        film_id,
+        review.text,
+    )
 
-        session.add(new_review)
-
-        try:
-            session.commit()
-        except SQLAlchemyError as error:
-            session.rollback()
-            logger.error(
-                'SQLAlchemy error while reviewing film %s: %s', film, error
-            )
-            raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
-
-    # logger.info(
-    #     'User %s with id %d left a review to film with id %d: %s',
-    #     user.login,
-    #     user.id,
-    #     film_id,
-    #     review.text,
-    # )
-    return {'status': 'ok', 'user': user}
-
-
-@router.post('/{film_id}/review/{review_id}')
-def review_info_handler(film_id: int, review_id: int):
     return {'status': 'ok'}
 
 
-@router.get('/{film_id}/reviews')
+@router.get(
+    '/{film_id}/reviews/{review_id}',
+    response_model=response_models.ReviewModel,
+    status_code=HTTPStatus.OK,
+)
+def review_info_handler(film_id: int, review_id: int):
+    review = manager.get_review_by_id(review_id, film_id)
+    if review is None:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+    return review
+
+
+@router.get('/{film_id}/reviews', status_code=HTTPStatus.OK)
 def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10):
-    with Session() as session:
-        reviews: List[Review] = (
-            session.query(Review)
-            .filter(Review.film_id == film_id)
-            .offset(offset)
-            .limit(limit)
-            .all()
-        )
+    reviews = manager.get_reviews(film_id, limit, offset)
 
-    return {'reviews': reviews}
+    reviews_models = [response_models.ReviewModel.from_orm(x) for x in reviews]
+
+    return response_models.Reviews(
+        movie='?', reviews=reviews_models, total=len(reviews), offset=offset
+    )
 
 
-@router.get('/{film_id}', response_model=response_models.FilmInfoModel)
-def film_info_handler(film_id: int) -> response_models.FilmInfoModel:
-    film = manager.get_film_data(film_id)
-    return film
+@router.get('/{film_id}', response_model=response_models.FilmModel)
+def film_info_handler(film_id: int) -> response_models.FilmModel:
+    film = manager.get_film_by_id(film_id)
+    score = manager.get_film_score(film_id)
+    model = response_models.FilmModel.from_orm(film)
+    model.score = score
+    return model

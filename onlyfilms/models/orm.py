@@ -81,14 +81,17 @@ class Review(Base):
         UniqueConstraint('author_id', 'film_id', name='_user_review_unique'),
     )
 
-    def __init__(self, author: User, film: Film, text: str) -> None:
+    def __init__(
+        self, author: User, film: Film, text: str, score: Optional[int] = None
+    ) -> None:
         self.film = film
         self.author = author
         self.text = text
         self.created = datetime.now()
+        self.score = score
 
     def __repr__(self) -> str:
-        return f'<Review {self.text[:30]}...>'
+        return f'<Review {self.text[:30]}..., {self.score}>'
 
 
 class Film(Base):
