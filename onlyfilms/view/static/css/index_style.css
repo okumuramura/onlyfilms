@@ -134,7 +134,7 @@
 .new_review textarea{
     width: 99%;
     height: 50px;
-    resize: horizontal;
+    resize: none;
 }
 
 .new_review textarea:focus{

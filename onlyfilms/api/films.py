@@ -14,13 +14,18 @@ router = APIRouter()
 
 @router.get('/', status_code=HTTPStatus.OK)
 def main_handler(
-    query: Optional[str] = Query('', alias='q'),
-    offset: int = 0,
-    limit: int = 10,
+    query: Optional[str] = Query('', alias='q', max_length=200),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, le=50),
 ):
 
     films = manager.get_films(query, offset, limit)
-    films_models = [response_models.FilmModel.from_orm(x) for x in films]
+    films_models = []
+    for film, score, evaluators in films:
+        model = response_models.FilmModel.from_orm(film)
+        model.score = score
+        model.evaluators = evaluators
+        films_models.append(model)
     return response_models.Films(
         films=films_models, total=len(films), offset=offset
     )
@@ -71,8 +76,18 @@ def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10):
 
 @router.get('/{film_id}', response_model=response_models.FilmModel)
 def film_info_handler(film_id: int) -> response_models.FilmModel:
-    film = manager.get_film_by_id(film_id)
-    score = manager.get_film_score(film_id)
+    film, score, evaluators = manager.get_film_by_id(film_id)
     model = response_models.FilmModel.from_orm(film)
-    model.score = score
+    model.score = round(score, 1)
+    model.evaluators = evaluators
     return model
+
+
+@router.delete('/{film_id}/reviews/{review_id}')
+def delete_review_handler(review_id: int, user: User = Depends(authorized)):
+    deleted = manager.delete_review(review_id, user)
+    if deleted:
+        logger.info('deleted review: %d', deleted)
+        return HTTPStatus.OK
+
+    raise HTTPException(status_code=HTTPStatus.FORBIDDEN)

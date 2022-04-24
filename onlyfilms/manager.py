@@ -1,6 +1,6 @@
 import json
 from functools import wraps
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Tuple
 from http import HTTPStatus
 
 from sqlalchemy import func as sql_func
@@ -25,9 +25,18 @@ def orm_function(func: Callable[..., Any]):  # type: ignore
 
 
 @orm_function
-def get_film_by_id(film_id: int, session: Session = None) -> Film:
-    film = session.query(Film).filter(Film.id == film_id).first()
-    return film
+def get_film_by_id(film_id: int, session: Session = None) -> Tuple[Film, float, int]:
+    data = (
+        session.query(
+            Film, sql_func.avg(Review.score), sql_func.count(Review.id)
+        )
+        .filter(Film.id == film_id)
+        .outerjoin(Film.reviews)
+        .group_by(Film)
+        .first()
+    )
+
+    return data
 
 
 @orm_function
@@ -37,13 +46,18 @@ def get_films(
     limit: int = 10,
     min_rating: float = 0.0,
     session: Session = None,
-) -> List[Film]:
+) -> List[Tuple[Film, float, int]]:
 
     query_filter = Film.title.ilike('%' + query + '%')
     offset_filter = Film.id > offset
+
     films = (
-        session.query(Film)
+        session.query(
+            Film, sql_func.avg(Review.score), sql_func.count(Review.id)
+        )
         .filter(query_filter & offset_filter)
+        .outerjoin(Film.reviews)
+        .group_by(Film)
         .limit(limit)
         .all()
     )
@@ -76,7 +90,7 @@ def get_film_score(film_id: int, session: Session = None) -> Optional[float]:
         .with_entities(sql_func.avg(Review.score))
         .scalar()
     )
-    return score if score is None else round(score, 2)
+    return score if score is None else round(score, 1)
 
 
 @orm_function
@@ -155,38 +169,6 @@ def post_review(
 
 
 @orm_function
-def get_film_data(
-    film_id: int, user_id: Optional[int] = None, session: Session = None
-) -> response_models.FilmInfoModel:
-    film: Film = session.query(Film).filter(Film.id == film_id).first()
-    reviews: List[Review] = (
-        session.query(Review)
-        .filter(Review.film_id == film_id)
-        .options(joinedload(Review.author))
-        .all()
-    )
-
-    review_model_items = []
-    score_sum = 0
-    reviews_with_score = 0
-    for review in reviews:
-        review_model_items.append(response_models.ReviewModel.from_orm(review))
-
-        if review.score is not None:
-            score_sum += review.score
-            reviews_with_score += 1
-
-    score = None
-    if reviews_with_score > 0:
-        score = round(score_sum / reviews_with_score, 1)
-
-    film_model = response_models.FilmModel.from_orm(film)
-    return response_models.FilmInfoModel(
-        film=film_model, reviews=review_model_items, score=score
-    )
-
-
-@orm_function
 def get_review_by_id(
     review_id: int, film_id: int, session: Session = None
 ) -> Optional[response_models.ReviewModel]:
@@ -198,3 +180,23 @@ def get_review_by_id(
     if review is None:
         return None
     return response_models.ReviewModel.from_orm(review)
+
+
+@orm_function
+def delete_review(
+    review_id: int, user: User, session: Session = None
+) -> Optional[int]:
+    review: Review = (
+        session.query(Review)
+        .filter(Review.id == review_id)
+        .options(joinedload(Review.author))
+        .first()
+    )
+    if review.author.id == user.id:
+        try:
+            session.delete(review)
+            session.commit()
+        except SQLAlchemyError:
+            return None
+        return review.id
+    return None

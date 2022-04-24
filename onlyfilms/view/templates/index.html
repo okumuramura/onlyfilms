@@ -17,7 +17,7 @@
     {% for film in films %}
     <a href="film/{{ film.id }}" title="{{ film.title }}">
         <div>
-            <div class="score">{{ film.score }}</div>
+            <div class="score">{% if film.score %}{{ film.score }}{% endif %}</div>
             <img class="film" src="{{ film.cover }}" alt="{{ film.title }} Poster">
         </div>
     </a>

@@ -22,6 +22,7 @@ class Films(BaseModel):
 
 class FilmModel(FilmModelBase):
     score: Optional[float] = None
+    evaluators: Optional[int] = None
 
 
 class Reviews(BaseModel):

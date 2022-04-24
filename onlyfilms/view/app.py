@@ -24,22 +24,29 @@ create_admin(app)
 @authorized
 def index_page(user: User):
     films = manager.get_films()
+    film_models = []
+    for film, score, evaluators in films:
+        model = response_models.FilmModel.from_orm(film)
+        model.score = score
+        model.evaluators = evaluators
+        film_models.append(model)
 
     return render_template(
-        'index.html', films=films, authorized=user is not None, user=user
+        'index.html', films=film_models, authorized=user is not None, user=user
     )
 
 
 @app.get('/film/<int:film_id>')
 @authorized
 def film_page(film_id: int, user: User):
-    film = manager.get_film_by_id(film_id=film_id)
+    film, score, evaluators = manager.get_film_by_id(film_id=film_id)
     if film is None:
         return abort(HTTPStatus.NOT_FOUND)
 
     reviews = manager.get_reviews(film_id, 5)
     film_model = response_models.FilmModel.from_orm(film)
-    film_model.score = 0.0
+    film_model.score = score if score else 0.0
+    film_model.evaluators = evaluators
     logger.info('Info page of film: %s', film)
 
     return render_template(
@@ -55,7 +62,7 @@ def film_page(film_id: int, user: User):
 @authorized
 def film_review(film_id: int, user: User):
     text = request.form.get('text')
-    if manager.create_review(film_id, user, text):
+    if manager.post_review(film_id, user, text):
         logger.info('review for film %d with text %s created', film_id, text)
     else:
         logger.info('review creation filed')
