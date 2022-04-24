@@ -23,7 +23,9 @@ create_admin(app)
 @app.get('/')
 @authorized
 def index_page(user: User):
-    films = manager.get_films()
+    query = request.args.get('query', '')
+    logger.info('Query: %s', query)
+    films = manager.get_films(query=query)
     film_models = []
     for film, score, evaluators in films:
         model = response_models.FilmModel.from_orm(film)
@@ -32,7 +34,11 @@ def index_page(user: User):
         film_models.append(model)
 
     return render_template(
-        'index.html', films=film_models, authorized=user is not None, user=user
+        'index.html',
+        films=film_models,
+        authorized=user is not None,
+        user=user,
+        search_holder=(query if query else 'Search'),
     )
 
 
@@ -85,7 +91,9 @@ def register_handler():
                 logger.info('new user registered: %s', login)
                 logger.info('new token created: %s', token)
 
-                response = make_response(redirect(url_for('.index_page'), 302))
+                response = make_response(
+                    redirect(url_for('.index_page'), HTTPStatus.FOUND)
+                )
                 response.set_cookie('token', token)
 
                 return response
@@ -104,7 +112,9 @@ def login_handler():
 
         if login and password:
             token = manager.login_user(login, password)
-            response = make_response(redirect(url_for('.index_page'), 302))
+            response = make_response(
+                redirect(url_for('.index_page'), HTTPStatus.FOUND)
+            )
             response.set_cookie('token', token)
 
             return response
@@ -114,7 +124,7 @@ def login_handler():
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout_handler():
-    response = make_response(redirect(url_for('.index_page'), 302))
+    response = make_response(redirect(url_for('.index_page'), HTTPStatus.FOUND))
     response.set_cookie('token', '', expires=0)
     return response
 

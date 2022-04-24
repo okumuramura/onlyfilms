@@ -8,9 +8,12 @@
 {% block content %}
 <div class="search-block">
     <span>
-        <input type="text" name="searcher" id="searcher" placeholder="Search">
-        <button type="submit" class="search-button"><i>&nbsp;</i></button>
+        <form method="get" action="{{ url_for('.index_page') }}" id="search-form">
+            <input type="text" name="query" id="searcher" placeholder="{{ search_holder }}">
+            <button type="submit" class="search-button"><i>&nbsp;</i></button>
+        </form>
     </span>
+    
 </div>
 
 <div class="content">

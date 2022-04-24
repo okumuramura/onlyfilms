@@ -25,7 +25,9 @@ def orm_function(func: Callable[..., Any]):  # type: ignore
 
 
 @orm_function
-def get_film_by_id(film_id: int, session: Session = None) -> Tuple[Film, float, int]:
+def get_film_by_id(
+    film_id: int, session: Session = None
+) -> Tuple[Film, float, int]:
     data = (
         session.query(
             Film, sql_func.avg(Review.score), sql_func.count(Review.id)
