@@ -20,7 +20,7 @@ def test_db():
     Base.metadata.create_all(bind=engine)
     TestSession = sessionmaker(bind=engine, expire_on_commit=False)
     yield TestSession
-    os.remove('./test.db')
+    # os.remove('./test.db')
 
 
 @pytest.fixture(scope='session')
@@ -37,10 +37,7 @@ def client():
 
 @pytest.fixture(scope='session')
 def register_user(test_db, fake_db):
-    data = {
-        'login': 'test_user',
-        'password': 'test_password'
-    }
+    data = {'login': 'test_user', 'password': 'test_password'}
     with test_db() as session:
         new_user = User(login=data['login'], password=data['password'])
         session.add(new_user)
@@ -52,7 +49,11 @@ def register_user(test_db, fake_db):
 def valid_user_token(test_db, fake_db, register_user):
     with test_db() as session:
         session: Session
-        user: User = session.query(User).filter(User.login == register_user['login']).first()
+        user: User = (
+            session.query(User)
+            .filter(User.login == register_user['login'])
+            .first()
+        )
         token = Token(user)
         token_str = token.token
         session.add(token)
@@ -63,10 +64,7 @@ def valid_user_token(test_db, fake_db, register_user):
 
 @pytest.fixture
 def unregister_user(test_db, fake_db):
-    data = {
-        'login': 'unreg_user',
-        'password': 'some_password'
-    }
+    data = {'login': 'unreg_user', 'password': 'some_password'}
     with test_db() as session:
         session.query(User).filter(User.login == data['login']).delete()
         session.commit()
@@ -75,10 +73,7 @@ def unregister_user(test_db, fake_db):
 
 @pytest.fixture(scope='session')
 def invalid_user():
-    return {
-        'login': 'very_long_login_wooow',
-        'password': 'psd'
-    }
+    return {'login': 'very_long_login_wooow', 'password': 'psd'}
 
 
 @pytest.fixture(scope='session')
@@ -123,3 +118,15 @@ def fake_reviews(test_db, fake_films, fake_users):
         session.commit()
 
     return reviews
+
+
+@pytest.fixture(scope='session')
+def fake_users_tokens(test_db, fake_users):
+    tokens = [Token(user) for user in fake_users]
+
+    with test_db() as session:
+        session: Session
+        session.add_all(tokens)
+        session.commit()
+
+    return tokens
