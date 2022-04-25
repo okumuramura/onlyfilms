@@ -26,7 +26,6 @@ class Films(BaseModel):
 
 
 class Reviews(BaseModel):
-    movie: str
     reviews: List[ReviewModel]
     total: int
     offset: int

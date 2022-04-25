@@ -5,7 +5,6 @@ from typer import Typer
 
 from onlyfilms import Base, engine, logger
 from onlyfilms.api import api
-from onlyfilms.manager import load_films
 from onlyfilms.view import app as interface_app
 
 args_parser = Typer()
@@ -23,7 +22,6 @@ def create_app() -> FastAPI:
 @args_parser.command(name='init')
 def init_db() -> None:
     Base.metadata.create_all(engine)
-    load_films('films.json')
     logger.info('Database is successfully initialized')
 
 

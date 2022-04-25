@@ -1,4 +1,3 @@
-import json
 from functools import wraps
 from http import HTTPStatus
 from typing import Any, Callable, List, Optional, Tuple
@@ -46,20 +45,19 @@ def get_films(
     query: str = "",
     offset: int = 0,
     limit: int = 10,
-    min_rating: float = 0.0,
     session: Session = None,
 ) -> Tuple[List[Tuple[Film, float, int]], int]:
 
     query_filter = Film.title.ilike('%' + query + '%')
-    offset_filter = Film.id > offset
 
     films = (
         session.query(
             Film, sql_func.avg(Review.score), sql_func.count(Review.id)
         )
-        .filter(query_filter & offset_filter)
+        .filter(query_filter)
         .outerjoin(Film.reviews)
         .group_by(Film)
+        .offset(offset)
         .limit(limit)
         .all()
     )
@@ -104,20 +102,6 @@ def get_user(user_id: int, session: Session = None) -> User:
     return session.query(User).filter(User.id == user_id).first()
 
 
-def load_films(path: str) -> None:
-    with open(path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-
-    films = []
-    for json_film in data:
-        films.append(Film(**json_film))
-
-    with SessionCreator() as session:
-        session.add_all(films)
-
-        session.commit()
-
-
 @orm_function
 def regster_user(login: str, password: str, session: Session = None) -> bool:
     new_user = User(login, password)
@@ -158,20 +142,20 @@ def post_review(
     text: str,
     score: Optional[int] = None,
     session: Session = None,
-) -> HTTPStatus:
+) -> Tuple[HTTPStatus, Optional[int]]:
     film = session.query(Film).filter(Film.id == film_id).first()
     if film is None:
-        return HTTPStatus.NOT_FOUND
+        return HTTPStatus.NOT_FOUND, None
 
-    new_review = Review(author, film, text)
+    new_review = Review(author, film, text, score)
 
     session.add(new_review)
     try:
         session.commit()
-        return HTTPStatus.CREATED
+        return HTTPStatus.CREATED, new_review.id
     except SQLAlchemyError:
         session.rollback()
-    return HTTPStatus.BAD_REQUEST
+    return HTTPStatus.BAD_REQUEST, None
 
 
 @orm_function

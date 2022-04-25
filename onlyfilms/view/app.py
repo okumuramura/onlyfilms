@@ -70,7 +70,7 @@ def film_page(film_id: int, user: User) -> str:
 @authorized
 def film_review(film_id: int, user: User) -> Any:
     text = request.form.get('text')
-    if manager.post_review(film_id, user, text):
+    if manager.post_review(film_id, user, text)[0] == HTTPStatus.CREATED:
         logger.info('review for film %d with text %s created', film_id, text)
     else:
         logger.info('review creation filed')

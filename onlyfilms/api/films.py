@@ -35,9 +35,9 @@ def main_handler(
 def review_handler(
     film_id: int, review: ReviewModel, user: User = Depends(authorized)
 ) -> Any:
-    status = manager.post_review(film_id, user, review.text, review.score)
+    status, post_id = manager.post_review(film_id, user, review.text, review.score)
 
-    if status == HTTPStatus.CREATED:
+    if status != HTTPStatus.CREATED:
         raise HTTPException(status_code=status)
 
     logger.info(
@@ -47,6 +47,8 @@ def review_handler(
         film_id,
         review.text,
     )
+
+    return {'review_id': post_id}
 
 
 @router.get(
@@ -72,7 +74,7 @@ def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10) -> Any:
     reviews_models = [response_models.ReviewModel.from_orm(x) for x in reviews]
 
     return response_models.Reviews(
-        movie='?', reviews=reviews_models, total=total, offset=offset
+        reviews=reviews_models, total=total, offset=offset
     )
 
 
@@ -82,9 +84,12 @@ def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10) -> Any:
     status_code=HTTPStatus.OK,
 )
 def film_info_handler(film_id: int) -> Any:
-    film, score, evaluators = manager.get_film_by_id(film_id)
+    result = manager.get_film_by_id(film_id)
+    if result is None:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+    film, score, evaluators = result
     model = response_models.FilmModel.from_orm(film)
-    model.score = round(score, 1)
+    model.score = None if score is None else round(score, 1)
     model.evaluators = evaluators
     return model
 
