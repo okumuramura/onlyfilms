@@ -10,11 +10,11 @@ UserModel = sqlalchemy_to_pydantic(User, exclude=['password', 'register_date'])
 ReviewModelBase = sqlalchemy_to_pydantic(Review, exclude=['author_id'])
 
 
-class ReviewModel(ReviewModelBase):
-    author: Optional[UserModel] = None
+class ReviewModel(ReviewModelBase):  # type: ignore
+    author: Optional[UserModel] = None  # type: ignore
 
 
-class FilmModel(FilmModelBase):
+class FilmModel(FilmModelBase):  # type: ignore
     score: Optional[float] = None
     evaluators: Optional[int] = None
 

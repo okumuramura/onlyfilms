@@ -43,12 +43,12 @@ def get_film_by_id(
 
 @orm_function
 def get_films(
-    query: Optional[str] = "",
+    query: str = "",
     offset: int = 0,
     limit: int = 10,
     min_rating: float = 0.0,
     session: Session = None,
-) -> List[Tuple[Film, float, int]]:
+) -> Tuple[List[Tuple[Film, float, int]], int]:
 
     query_filter = Film.title.ilike('%' + query + '%')
     offset_filter = Film.id > offset
@@ -64,13 +64,15 @@ def get_films(
         .all()
     )
 
-    return films
+    total = session.query(Film).filter(query_filter).count()
+
+    return films, total
 
 
 @orm_function
 def get_reviews(
     film_id: int, limit: int = 3, offset: int = 0, session: Session = None
-) -> List[Review]:
+) -> Tuple[List[Review], int]:
     reviews = (
         session.query(Review)
         .options(joinedload(Review.author))
@@ -81,7 +83,9 @@ def get_reviews(
         .all()
     )
 
-    return reviews
+    total = session.query(Review).filter(Review.film_id == film_id).count()
+
+    return reviews, total
 
 
 @orm_function
@@ -101,7 +105,7 @@ def get_user(user_id: int, session: Session = None) -> User:
 
 
 def load_films(path: str) -> None:
-    with open(path, 'r') as file:
+    with open(path, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
     films = []
@@ -194,7 +198,7 @@ def delete_review(
         .options(joinedload(Review.author))
         .first()
     )
-    if review.author.id == user.id:
+    if review and review.author.id == user.id:
         try:
             session.delete(review)
             session.commit()

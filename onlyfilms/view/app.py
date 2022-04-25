@@ -1,7 +1,9 @@
 from http import HTTPStatus
+from typing import Any, Tuple
 
 from flask import (
     Flask,
+    Response,
     abort,
     make_response,
     redirect,
@@ -22,10 +24,10 @@ create_admin(app)
 
 @app.get('/')
 @authorized
-def index_page(user: User):
+def index_page(user: User) -> str:
     query = request.args.get('query', '')
     logger.info('Query: %s', query)
-    films = manager.get_films(query=query)
+    films, _ = manager.get_films(query=query)
     film_models = []
     for film, score, evaluators in films:
         model = response_models.FilmModel.from_orm(film)
@@ -44,12 +46,12 @@ def index_page(user: User):
 
 @app.get('/film/<int:film_id>')
 @authorized
-def film_page(film_id: int, user: User):
+def film_page(film_id: int, user: User) -> str:
     film, score, evaluators = manager.get_film_by_id(film_id=film_id)
     if film is None:
         return abort(HTTPStatus.NOT_FOUND)
 
-    reviews = manager.get_reviews(film_id, 5)
+    reviews, _ = manager.get_reviews(film_id, 5)
     film_model = response_models.FilmModel.from_orm(film)
     film_model.score = score if score else 0.0
     film_model.evaluators = evaluators
@@ -66,7 +68,7 @@ def film_page(film_id: int, user: User):
 
 @app.post('/film/<int:film_id>/review')
 @authorized
-def film_review(film_id: int, user: User):
+def film_review(film_id: int, user: User) -> Any:
     text = request.form.get('text')
     if manager.post_review(film_id, user, text):
         logger.info('review for film %d with text %s created', film_id, text)
@@ -76,59 +78,59 @@ def film_review(film_id: int, user: User):
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register_handler():
+def register_handler() -> Any:
     if request.method == 'GET':
         return render_template('register.html')
-    else:
-        login = request.form.get('login')
-        password = request.form.get('password')
 
-        logger.info('registration request with login: %s', login)
-        if login and password:
-            if manager.regster_user(login, password):
-                token = manager.login_user(login, password)
+    login = request.form.get('login')
+    password = request.form.get('password')
 
-                logger.info('new user registered: %s', login)
-                logger.info('new token created: %s', token)
-
-                response = make_response(
-                    redirect(url_for('.index_page'), HTTPStatus.FOUND)
-                )
-                response.set_cookie('token', token)
-
-                return response
-
-        logger.info('registration failed: <User %s>', login)
-        return 'wrong data'
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login_handler():
-    if request.method == 'GET':
-        return render_template('login.html')
-    else:
-        login = request.form.get('login')
-        password = request.form.get('password')
-
-        if login and password:
+    logger.info('registration request with login: %s', login)
+    if login and password:
+        if manager.regster_user(login, password):
             token = manager.login_user(login, password)
+
+            logger.info('new user registered: %s', login)
+            logger.info('new token created: %s', token)
+
             response = make_response(
                 redirect(url_for('.index_page'), HTTPStatus.FOUND)
             )
             response.set_cookie('token', token)
 
             return response
+
+    logger.info('registration failed: <User %s>', login)
+    return 'wrong data'
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_handler() -> Any:
+    if request.method == 'GET':
+        return render_template('login.html')
+
+    login = request.form.get('login')
+    password = request.form.get('password')
+
+    if login and password:
+        token = manager.login_user(login, password)
+        response = make_response(
+            redirect(url_for('.index_page'), HTTPStatus.FOUND)
+        )
+        response.set_cookie('token', token)
+
+        return response
     logger.info('sign in failed: <User %s>', login)
     return 'wrong data'
 
 
 @app.route('/logout', methods=['GET', 'POST'])
-def logout_handler():
+def logout_handler() -> Response:
     response = make_response(redirect(url_for('.index_page'), HTTPStatus.FOUND))
     response.set_cookie('token', '', expires=0)
     return response
 
 
 @app.errorhandler(HTTPStatus.NOT_FOUND)
-def not_found_error(_: Exception):
+def not_found_error(_: Exception) -> Tuple[str, int]:
     return render_template('404.html'), HTTPStatus.NOT_FOUND

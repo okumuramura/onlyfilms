@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
@@ -12,7 +13,7 @@ router.include_router(films.router, prefix='/films')
 
 
 @router.post('/register', status_code=HTTPStatus.ACCEPTED)
-def register_handler(user_model: RegisterModel):
+def register_handler(user_model: RegisterModel) -> Any:
     if not manager.regster_user(user_model.login, user_model.password):
         logger.warning('Can not add new user %s', user_model.login)
         raise HTTPException(status_code=HTTPStatus.NOT_ACCEPTABLE)
@@ -22,7 +23,7 @@ def register_handler(user_model: RegisterModel):
 
 
 @router.post('/login', status_code=HTTPStatus.ACCEPTED)
-def login_handler(user_model: RegisterModel):
+def login_handler(user_model: RegisterModel) -> Any:
 
     token = manager.login_user(user_model.login, user_model.password)
 
