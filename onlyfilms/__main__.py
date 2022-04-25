@@ -7,9 +7,8 @@ from onlyfilms import Base, engine, logger
 from onlyfilms.api import api
 from onlyfilms.manager import load_films
 from onlyfilms.view import app as interface_app
-from onlyfilms import manager
 
-args = Typer()
+args_parser = Typer()
 
 
 def create_app() -> FastAPI:
@@ -21,23 +20,18 @@ def create_app() -> FastAPI:
     return app
 
 
-@args.command(name='init')
+@args_parser.command(name='init')
 def init_db() -> None:
     Base.metadata.create_all(engine)
     load_films('films.json')
     logger.info('Database is successfully initialized')
 
 
-@args.command(name='test')
-def test_code() -> None:
-    manager.get_films_with_score()
-
-
-@args.command()
+@args_parser.command()
 def start() -> None:
     app = create_app()
     uvicorn.run(app)
 
 
 if __name__ == '__main__':
-    args()
+    args_parser()

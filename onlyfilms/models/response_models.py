@@ -14,15 +14,15 @@ class ReviewModel(ReviewModelBase):
     author: Optional[UserModel] = None
 
 
-class Films(BaseModel):
-    films: List[FilmModelBase]
-    total: int
-    offset: int
-
-
 class FilmModel(FilmModelBase):
     score: Optional[float] = None
     evaluators: Optional[int] = None
+
+
+class Films(BaseModel):
+    films: List[FilmModel]
+    total: int
+    offset: int
 
 
 class Reviews(BaseModel):

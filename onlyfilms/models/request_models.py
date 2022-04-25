@@ -1,17 +1,13 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RegisterModel(BaseModel):
-    login: str
-    password: str
-
-
-class RatingModel(BaseModel):
-    score: int
+    login: str = Field(..., min_length=6, max_length=20)
+    password: str = Field(..., min_length=5, max_length=20)
 
 
 class ReviewModel(BaseModel):
     text: str
-    score: Optional[int] = None
+    score: Optional[int] = Field(None, ge=0.0, le=10.0)

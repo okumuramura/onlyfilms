@@ -12,7 +12,9 @@ from onlyfilms.models.request_models import ReviewModel
 router = APIRouter()
 
 
-@router.get('/', status_code=HTTPStatus.OK)
+@router.get(
+    '/', response_model=response_models.Films, status_code=HTTPStatus.OK
+)
 def main_handler(
     query: Optional[str] = Query('', alias='q', max_length=200),
     offset: int = Query(0, ge=0),
@@ -48,8 +50,6 @@ def review_handler(
         review.text,
     )
 
-    return {'status': 'ok'}
-
 
 @router.get(
     '/{film_id}/reviews/{review_id}',
@@ -63,7 +63,11 @@ def review_info_handler(film_id: int, review_id: int):
     return review
 
 
-@router.get('/{film_id}/reviews', status_code=HTTPStatus.OK)
+@router.get(
+    '/{film_id}/reviews',
+    response_model=response_models.Reviews,
+    status_code=HTTPStatus.OK,
+)
 def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10):
     reviews = manager.get_reviews(film_id, limit, offset)
 
@@ -74,7 +78,11 @@ def reviews_list_handler(film_id: int, offset: int = 0, limit: int = 10):
     )
 
 
-@router.get('/{film_id}', response_model=response_models.FilmModel)
+@router.get(
+    '/{film_id}',
+    response_model=response_models.FilmModel,
+    status_code=HTTPStatus.OK,
+)
 def film_info_handler(film_id: int) -> response_models.FilmModel:
     film, score, evaluators = manager.get_film_by_id(film_id)
     model = response_models.FilmModel.from_orm(film)
@@ -83,11 +91,10 @@ def film_info_handler(film_id: int) -> response_models.FilmModel:
     return model
 
 
-@router.delete('/{film_id}/reviews/{review_id}')
+@router.delete('/{film_id}/reviews/{review_id}', status_code=HTTPStatus.OK)
 def delete_review_handler(review_id: int, user: User = Depends(authorized)):
     deleted = manager.delete_review(review_id, user)
-    if deleted:
-        logger.info('deleted review: %d', deleted)
-        return HTTPStatus.OK
+    if not deleted:
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN)
 
-    raise HTTPException(status_code=HTTPStatus.FORBIDDEN)
+    logger.info('deleted review: %d', deleted)

@@ -11,7 +11,7 @@ logging.config.fileConfig(
 )
 logger = logging.getLogger(__name__)
 
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 
 engine = create_engine(DB)
 Base = declarative_base()

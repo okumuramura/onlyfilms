@@ -12,8 +12,8 @@ from flask import (
 
 from onlyfilms import logger, manager
 from onlyfilms.admin import create_admin
-from onlyfilms.models.orm import User
 from onlyfilms.models import response_models
+from onlyfilms.models.orm import User
 from onlyfilms.view import authorized
 
 app = Flask(__name__, static_url_path='/static')

@@ -16,6 +16,8 @@ def register_handler(user_model: RegisterModel):
     if not manager.regster_user(user_model.login, user_model.password):
         logger.warning('Can not add new user %s', user_model.login)
         raise HTTPException(status_code=HTTPStatus.NOT_ACCEPTABLE)
+
+    logger.info('User with login %s registered succsessfully', user_model.login)
     return HTTPStatus.CREATED
 
 
@@ -26,6 +28,12 @@ def login_handler(user_model: RegisterModel):
 
     if not token:
         logger.warning('Wrong user or password for user %s', user_model.login)
-        return HTTPException(status_code=HTTPStatus.NOT_ACCEPTABLE)
+        raise HTTPException(status_code=HTTPStatus.NOT_ACCEPTABLE)
+
+    logger.info(
+        'User with login %s logged in successfully, token: %s',
+        user_model.login,
+        token,
+    )
 
     return {'token': token}

@@ -1,7 +1,7 @@
 import json
 from functools import wraps
-from typing import Any, Callable, List, Optional, Tuple
 from http import HTTPStatus
+from typing import Any, Callable, List, Optional, Tuple
 
 from sqlalchemy import func as sql_func
 from sqlalchemy.exc import SQLAlchemyError
