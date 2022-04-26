@@ -26,7 +26,7 @@ lint:
     - flake8 --jobs 4 --statistics --show-source onlyfilms
     - pylint --jobs 4 --rcfile=setup.cfg onlyfilms
     - mypy onlyfilms
-    - black --line-length=80 --target-version=py39 --skip-string-normalization --check todo
+    - black --line-length=80 --target-version=py39 --skip-string-normalization --check onlyfilms
 
 test:
   stage: test
