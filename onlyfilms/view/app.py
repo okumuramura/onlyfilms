@@ -1,3 +1,4 @@
+import secrets
 from http import HTTPStatus
 from typing import Any, Tuple
 
@@ -19,6 +20,8 @@ from onlyfilms.models.orm import User
 from onlyfilms.view import authorized
 
 app = Flask(__name__, static_url_path='/static')
+app.config['SECRET_KEY'] = secrets.token_hex(16)
+
 create_admin(app)
 
 

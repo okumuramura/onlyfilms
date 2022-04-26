@@ -1,5 +1,5 @@
-from typing import Optional
 from http import HTTPStatus
+from typing import Optional
 
 from fastapi import Header, HTTPException
 
@@ -9,7 +9,9 @@ from onlyfilms.models.orm import Token, User
 
 def authorized(authorization: Optional[str] = Header(None)) -> User:
     if not authorization:
-        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Authorization requied')
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN, detail='Authorization requied'
+        )
 
     with Session() as session:
         token: Token = (
@@ -17,7 +19,9 @@ def authorized(authorization: Optional[str] = Header(None)) -> User:
         )
 
         if token is None:
-            raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Authorization faild')
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail='Authorization faild'
+            )
 
         user = token.user
 

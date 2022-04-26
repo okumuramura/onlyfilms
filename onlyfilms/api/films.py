@@ -35,7 +35,9 @@ def main_handler(
 def review_handler(
     film_id: int, review: ReviewModel, user: User = Depends(authorized)
 ) -> Any:
-    status, post_id = manager.post_review(film_id, user, review.text, review.score)
+    status, post_id = manager.post_review(
+        film_id, user, review.text, review.score
+    )
 
     if status != HTTPStatus.CREATED:
         raise HTTPException(status_code=status)

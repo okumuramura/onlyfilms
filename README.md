@@ -1,6 +1,10 @@
 # Onlyfilms
 
-Film evaluation and review service. Contains api, web application and admin panel. Uses FastApi (API), Flask (web), sqlalchemy (ORM).
+Film evaluation and review service. Contains api, web application and admin panel.  
+Uses:
+- FastApi (API)
+- Flask (web)
+- sqlalchemy (ORM).
 
 ## Installation
 ```bash

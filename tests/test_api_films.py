@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 from pytest_mock import MockerFixture
+from sqlalchemy.orm import Session
 
-from onlyfilms.models.orm import Review, Token
 from onlyfilms import manager
+from onlyfilms.models.orm import Review, Token
 
 
 def test_clear_films_request(client: TestClient, fake_db, fake_films):

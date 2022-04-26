@@ -2,13 +2,13 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
 from pytest_mock import MockerFixture
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from onlyfilms import Base
 from onlyfilms.__main__ import create_app
-from onlyfilms.models.orm import User, Film, Token, Review
+from onlyfilms.models.orm import Film, Review, Token, User
 
 
 @pytest.fixture(scope='session')
@@ -20,7 +20,7 @@ def test_db():
     Base.metadata.create_all(bind=engine)
     TestSession = sessionmaker(bind=engine, expire_on_commit=False)
     yield TestSession
-    # os.remove('./test.db')
+    os.remove('./test.db')
 
 
 @pytest.fixture(scope='session')
