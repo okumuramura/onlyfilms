@@ -18,7 +18,7 @@ def orm_function(func: Callable[..., Any]):  # type: ignore
             with SessionCreator() as session:
                 return func(*args, session=session, **kwargs)
         else:
-            return func(*args, session=kwargs.get('session'), **kwargs)
+            return func(*args, **kwargs)
 
     return wrapper
 
@@ -42,7 +42,7 @@ def get_film_by_id(
 
 @orm_function
 def get_films(
-    query: str = "",
+    query: str = '',
     offset: int = 0,
     limit: int = 10,
     session: Session = None,

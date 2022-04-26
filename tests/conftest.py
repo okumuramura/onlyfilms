@@ -130,3 +130,23 @@ def fake_users_tokens(test_db, fake_users):
         session.commit()
 
     return tokens
+
+
+@pytest.fixture
+def deleted_review(test_db, fake_users, fake_films):
+    author: User = fake_users[0]
+    film: Film = fake_films[5]
+
+    with test_db() as session:
+        session: Session
+        review = Review(author, film, 'deleted review')
+        session.add(review)
+        session.commit()
+
+    review_id = review.id
+
+    yield review
+
+    with test_db() as session:
+        session.query(Review).filter(Review.id == review_id).delete()
+        session.commit()
