@@ -117,6 +117,9 @@ def login_handler() -> Any:
 
     if login and password:
         token = manager.login_user(login, password)
+        if not token:
+            logger.info('sign in failed: <User %s>', login)
+            return abort(HTTPStatus.CONFLICT)
         response = make_response(
             redirect(url_for('.index_page'), HTTPStatus.FOUND)
         )
@@ -124,7 +127,7 @@ def login_handler() -> Any:
 
         return response
     logger.info('sign in failed: <User %s>', login)
-    return 'wrong data'
+    return abort(HTTPStatus.CONFLICT)
 
 
 @app.route('/logout', methods=['GET', 'POST'])

@@ -1,6 +1,6 @@
 # Local data
-films.db
 poetry.lock
+films.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

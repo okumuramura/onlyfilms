@@ -43,6 +43,7 @@
 
             {% for review in reviews %}
             <div class="review">
+                <div class="review-score">{% if review.score is none %}-{% else %}{{ review.score }}{% endif %}<span class="fa fa-star"></span></div>
                 <div class="author">{{ review.author.login }}</div>
                 <div class="review_text">
                     {{ review.text }}

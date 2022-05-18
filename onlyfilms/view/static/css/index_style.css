@@ -126,6 +126,7 @@
 }
 
 .review {
+    position: relative;
     margin: 20px;
     padding: 10px;
     border: 1px solid black;
@@ -151,6 +152,18 @@
 .review_date {
     text-align: right;
     font-size: 12px;
+}
+
+.review-score {
+    position: absolute;
+    right: 20px;
+    font-size: 14px;
+    background: black;
+    color: white;
+}
+
+.review-score span {
+    margin-left: 2px;
 }
 
 .score-reviews-count {
