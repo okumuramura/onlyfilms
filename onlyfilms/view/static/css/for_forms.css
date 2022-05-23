@@ -3,11 +3,15 @@ form {
     flex-direction: column;
     justify-content: center;
     border: 1px solid black;
-    width: 40%;
+    width: 30%;
+    margin: auto;
     margin-top: 10%;
     padding: 20px;
 }
 
 form input[type='submit'] {
     width: 30%;
+    background-color: black;
+    color: white;
+    border: none;
 }

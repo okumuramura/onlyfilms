@@ -33,7 +33,19 @@
             <div class="review new_review">
                 {% if authorized %}
                 <form id="review-form" method="post" action="{{ url_for('.film_review', film_id=film.id) }}">
-                    <textarea name="text" id="new_review_text" placeholder="Tell us about your expressions" maxlength="2000" spellcheck="" cols="30" rows="10" form="review-form"></textarea>
+                    <textarea name="text" id="new_review_text" placeholder="Tell us about your expressions" maxlength="2000" spellcheck="true" cols="30" rows="10" form="review-form"></textarea>
+                    <div class="score-input">
+                        <input type="radio" name="rating" id="rating-5" value="10">
+                        <label for="rating-5" class="fa fa-star"></label>
+                        <input type="radio" name="rating" id="rating-4" value="8">
+                        <label for="rating-4" class="fa fa-star"></label>
+                        <input type="radio" name="rating" id="rating-3" value="6">
+                        <label for="rating-3" class="fa fa-star"></label>
+                        <input type="radio" name="rating" id="rating-2" value="4">
+                        <label for="rating-2" class="fa fa-star"></label>
+                        <input type="radio" name="rating" id="rating-1" value="2">
+                        <label for="rating-1" class="fa fa-star"></label>
+                    </div>
                     <input class="send-review-button" type="submit" value="Send">
                 </form>
                 {% else %}

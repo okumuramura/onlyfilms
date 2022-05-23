@@ -29,7 +29,6 @@ create_admin(app)
 @authorized
 def index_page(user: User) -> str:
     query = request.args.get('query', '')
-    logger.info('Query: %s', query)
     films, _ = manager.get_films(query=query)
     film_models = []
     for film, score, evaluators in films:
@@ -73,7 +72,13 @@ def film_page(film_id: int, user: User) -> str:
 @authorized
 def film_review(film_id: int, user: User) -> Any:
     text = request.form.get('text')
-    if manager.post_review(film_id, user, text)[0] == HTTPStatus.CREATED:
+    rating_string = request.form.get('rating')
+
+    rating = None
+    if rating_string:
+        rating = int(rating_string)
+
+    if manager.post_review(film_id, user, text, rating)[0] == HTTPStatus.CREATED:
         logger.info('review for film %d with text %s created', film_id, text)
     else:
         logger.info('review creation filed')
